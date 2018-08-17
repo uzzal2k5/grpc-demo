@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-service
+  labels:
+    name: grpc-replica-svc
+    app: grpc-demo
+spec:
+  ports:
+  - port: 50051
+    name: grpc-server
+    targetPort: 50051
+  selector:
+    name: demo-server
+    app: grpc-demo
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: grpc-lb
+  labels:
+    name: grpc-lb
+    app: grpc-haproxy
+spec:
+  containers:
+  - name: grpclb
+    image: index.docker.io/haproxy
+    ports:
+    - containerPort: 50051
+  imagePullSecrets:
+  - name: regsecret
+
+
+apiVersion: v1 # for versions before 1.6.0 use extensions/v1beta1
+kind: ReplicationController
+metadata:
+  name: grpc-replica
+  labels:
+    app: grpc-demo
+    tier: grpc-server
+spec:
+  # this replicas value is default
+  # modify it according to your case
+  replicas: 3
+  selector:
+    name: demo-server
+    app: grpc-demo
+  template:
+    metadata:
+      name: demo-server
+      labels:
+        name: demo-server
+        app: grpc-demo
+    spec:
+      containers:
+      - name: demo
+        image: index.docker.io/uzzal2k5/grpc-demo:latest
+        ports:
+        - containerPort: 50051
+      imagePullSecrets:
+      - name: regsecret

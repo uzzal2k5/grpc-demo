@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-server
+  labels:
+    name: demo-server
+    app: grpc-demo
+spec:
+  containers:
+  - name: demo
+    image: index.docker.io/uzzal2k5/grpc-demo:latest
+    ports:
+    - containerPort: 50051
+  imagePullSecrets:
+  - name: regsecret
